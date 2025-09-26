@@ -1,7 +1,7 @@
+import { UserAlreadyExistsError } from '@/services/errors/user-already-exists-error';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { createUserService } from '@/services/user';
 import { z } from 'zod';
-import { UserAlreadyExistsError } from '@/services/errors/user-already-exists-error';
 
 export const create = async (request: FastifyRequest, reply: FastifyReply) => {
   const createUserSchema = z.object({
