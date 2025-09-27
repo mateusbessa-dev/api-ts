@@ -5,10 +5,13 @@
 	"main": "index.js",
 	"type": "module",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
 		"start:dev": "tsx watch src/server.ts",
 		"start": "node build/server.js",
-		"build": "tsup src --out-dir build --format esm"
+		"build": "tsup src --out-dir build --format esm",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:coverage": "vitest run --coverage",
+		"test:ui": "vitest --ui"
 	},
 	"keywords": [],
 	"author": "",
@@ -16,14 +19,18 @@
 	"devDependencies": {
 		"@types/bcryptjs": "2.4.6",
 		"@types/node": "^24.3.0",
+		"@vitest/ui": "3.2.4",
 		"globals": "16.3.0",
 		"prisma": "6.14.0",
 		"tsup": "^8.5.0",
 		"tsx": "^4.20.4",
-		"typescript": "^5.9.2"
+		"typescript": "^5.9.2",
+		"vite-tsconfig-paths": "5.1.4",
+		"vitest": "3.2.4"
 	},
 	"dependencies": {
 		"@prisma/client": "6.14.0",
+		"@vitest/coverage-v8": "3.2.4",
 		"bcryptjs": "3.0.2",
 		"dotenv": "17.2.1",
 		"fastify": "^5.5.0",
