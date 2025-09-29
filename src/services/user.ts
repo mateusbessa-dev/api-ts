@@ -1,6 +1,5 @@
-import { UserAlreadyExistsError } from "./errors/user-already-exists-error"
+import { UserNotFoundError, UserAlreadyExistsError } from "./errors/users"
 import { UsersRepository } from "@/repositories/users-repository"
-import { User } from "@prisma/client"
 import { hash } from "bcryptjs"
 
 interface CreateUserRequest {
@@ -8,8 +7,18 @@ interface CreateUserRequest {
   email: string,
   password: string,
 }
-interface CreateUserResponse {
-  user: User
+export class FindOneUserService {
+  constructor(private usersRepository: UsersRepository){}
+
+  async execute(id: string){
+    const user = await this.usersRepository.findOne(id)
+    if (!user) throw new UserNotFoundError()
+    return {
+      user,
+    }
+
+  }
+
 }
 export class CreateUserService {
   constructor(private usersRepository: UsersRepository ) {}

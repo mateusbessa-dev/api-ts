@@ -1,9 +1,8 @@
-import { PrismaUsersRepository } from '@/repositories/prisma/prisma-users-repository'
-import { expect, describe, it } from 'vitest'
-import { CreateUserService } from './user'
-import { compare } from 'bcryptjs'
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository'
-import { UserAlreadyExistsError } from './errors/user-already-exists-error'
+import { UserAlreadyExistsError } from './errors/users'
+import { expect, describe, it } from 'vitest'
+import { CreateUserService, FindOneUserService } from './user'
+import { compare } from 'bcryptjs'
 
 describe('Create User Service', () => {
   it('should be able to register', async () => {
@@ -51,5 +50,24 @@ describe('Create User Service', () => {
     })).rejects.toBeInstanceOf(UserAlreadyExistsError)
 
 
+  })
+})
+
+describe('Find One User Service', () => {
+  it('should be able to find one user by id', async () => {
+    const usersRepository = new InMemoryUsersRepository()
+    const createUserService = new CreateUserService(usersRepository)
+
+    const { user } = await createUserService.execute({
+      name: 'John Doe',
+      email: 'john.doe@example.com',
+      password: 'password123'
+    })
+
+    const findOneUserService = new FindOneUserService(usersRepository)
+    const foundUser = await findOneUserService.execute(user.id)
+
+    expect(foundUser.user.id).toEqual(expect.any(String)) // UUID
+    expect(foundUser.user.name).toEqual('John Doe')
   })
 })
