@@ -16,10 +16,22 @@ export class FindOneUserService {
     return {
       user,
     }
-
   }
 
 }
+
+export class FindManyUserService {
+  constructor(private usersRepository: UsersRepository){}
+
+  async execute() {
+    const users = await this.usersRepository.findMany()
+    if (!users) throw new UserNotFoundError()
+    return {
+      users,
+    }
+  }
+}
+
 export class CreateUserService {
   constructor(private usersRepository: UsersRepository ) {}
 

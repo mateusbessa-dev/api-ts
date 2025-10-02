@@ -1,6 +1,6 @@
 import { PrismaUsersRepository } from '@/repositories/prisma/prisma-users-repository';
 import { UserAlreadyExistsError, UserNotFoundError } from '@/services/errors/users';
-import { CreateUserService, FindOneUserService } from '@/services/user';
+import { CreateUserService, FindOneUserService, FindManyUserService } from '@/services/user';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { z } from 'zod';
 
@@ -22,6 +22,17 @@ export const findOne = async (request: FastifyRequest, reply: FastifyReply) => {
     throw error
   }
 
+}
+
+export const findMany = async (request: FastifyRequest, reply: FastifyReply) => {
+  try {
+    const findManyUsersService = new FindManyUserService(usersRepository)
+    const data = await findManyUsersService.execute()
+    return reply.status(200).send(data)
+  } catch (error) {
+    if (error instanceof UserNotFoundError) return reply.status(404).send({message: error.message})
+    throw error
+  }
 }
 
 export const create = async (request: FastifyRequest, reply: FastifyReply) => {
