@@ -5,4 +5,5 @@ export interface UsersRepository {
   findOne(id: string): Promise<User | null>
   findMany(): Promise<User[] | []>
   findByEmail(email: string): Promise<User | null>
+  delete(id: string): Promise<void>
 }

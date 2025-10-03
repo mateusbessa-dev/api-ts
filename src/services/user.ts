@@ -52,3 +52,14 @@ export class CreateUserService {
     }
 }
 }
+
+export class DeleteUserService {
+  constructor(private usersRepository: UsersRepository){}
+
+  async execute(id:string){
+    const user = await this.usersRepository.findOne(id)
+    if (!user) throw new UserNotFoundError()
+    await this.usersRepository.delete(id)
+    return 
+  }
+}
