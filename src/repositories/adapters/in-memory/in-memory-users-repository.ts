@@ -1,5 +1,5 @@
 import { User, Prisma } from "@prisma/client"
-import { UsersRepository } from "@/repositories/users-repository"
+import { UsersRepository } from "@/repositories/_interfaces/users-repository"
 
 export class InMemoryUsersRepository implements UsersRepository {
   private users: User[] = []
@@ -32,5 +32,27 @@ export class InMemoryUsersRepository implements UsersRepository {
     }
     this.users.push(user)
     return user
+  }
+
+  async update(id: string, data: Prisma.UserUpdateInput) {
+    const userIndex = this.users.findIndex(user => user.id === id)
+    if (userIndex === -1) return null
+
+    const user = this.users[userIndex]
+
+    const updatedUser = {
+      ...user,
+      ...data,
+    }
+
+    this.users[userIndex] = updatedUser as User
+
+    return this.users[userIndex]
+  }
+
+  async delete(id: string) {
+    const userIndex = this.users.findIndex(user => user.id === id)
+    if (userIndex === -1) return null
+    this.users.splice(userIndex, 1)
   }
 }

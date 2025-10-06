@@ -1,6 +1,6 @@
-import { PrismaUsersRepository } from '@/repositories/prisma/prisma-users-repository';
-import { UserAlreadyExistsError, UserNotFoundError } from '@/services/errors/users';
-import { CreateUserService, FindOneUserService, FindManyUserService, DeleteUserService } from '@/services/user';
+import { PrismaUsersRepository } from '@/repositories/adapters/prisma/prisma-users-repository';
+import { UserAlreadyExistsError, UserNotFoundError } from '@/services/user/errors/users';
+import { CreateUserService, FindOneUserService, FindManyUserService, DeleteUserService, UpdateUserService } from '@/services/user/user';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { z } from 'zod';
 
@@ -27,8 +27,15 @@ export const findOne = async (request: FastifyRequest, reply: FastifyReply) => {
 export const findMany = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
     const findManyUsersService = new FindManyUserService(usersRepository)
-    const data = await findManyUsersService.execute()
-    return reply.status(200).send(data)
+    const { users } = await findManyUsersService.execute()
+
+    // Remove password_hash from each user object before sending the response
+    const usersWithoutPassword = users.map(user => {
+      const { password_hash, ...userWithoutPassword } = user
+      return userWithoutPassword
+    })
+
+    return reply.status(200).send({ users: usersWithoutPassword })
   } catch (error) {
     if (error instanceof UserNotFoundError) return reply.status(404).send({message: error.message})
     throw error
@@ -54,6 +61,29 @@ export const create = async (request: FastifyRequest, reply: FastifyReply) => {
 
 
   return reply.status(201).send()
+}
+
+export const update = async (request: FastifyRequest, reply: FastifyReply) => {
+  const updateUserSchemaParams = z.object({
+    id: z.uuid(),
+  })
+  const { id } = updateUserSchemaParams.parse(request.params)
+
+  const updateUserSchemaBody = z.object({
+    name: z.string().min(2).max(100).optional(),
+    email: z.email().optional(),
+    password: z.string().min(6).optional(),
+  })
+  const { name, email, password } = updateUserSchemaBody.parse(request.body)
+
+  try {
+    const updateUserService = new UpdateUserService(usersRepository)
+    const { user } = await updateUserService.execute(id, { name: name, email: email, password: password })
+    return reply.status(200).send({ user: user })
+  } catch (error) {
+    if (error instanceof UserNotFoundError) return reply.status(404).send({ message: error.message })
+    throw error
+  }
 }
 
 export const del = async (request: FastifyRequest, reply: FastifyReply) => {

@@ -1,7 +1,7 @@
-import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository'
-import { UserAlreadyExistsError } from './errors/users'
+import { InMemoryUsersRepository } from '@/repositories/adapters/in-memory/in-memory-users-repository'
+import { UserAlreadyExistsError } from '../errors/users'
 import { expect, describe, it } from 'vitest'
-import { CreateUserService, FindOneUserService, FindManyUserService } from './user'
+import { CreateUserService, FindOneUserService, FindManyUserService } from '../user'
 import { compare } from 'bcryptjs'
 
 describe('Find One User Service', () => {

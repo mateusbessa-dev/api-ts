@@ -1,0 +1,92 @@
+import { Prisma{{pascalCase name}}Repository } from '@/repositories/prisma/prisma-{{dashCase name}}-repository';
+import { {{pascalCase name}}AlreadyExistsError, {{pascalCase name}}NotFoundError } from '@/services/errors/{{dashCase name}}';
+import { Create{{pascalCase name}}Service, FindOne{{pascalCase name}}Service, FindMany{{pascalCase name}}Service, Delete{{pascalCase name}}Service, Update{{pascalCase name}}Service } from '@/services/{{dashCase name}}';
+import { FastifyRequest, FastifyReply } from 'fastify';
+import { z } from 'zod';
+
+const {{camelCase name}}Repository = new Prisma{{pascalCase name}}Repository()
+
+export const findOne = async (request: FastifyRequest, reply: FastifyReply) => {
+  const findOne{{pascalCase name}}Schema = z.object({
+    id: z.uuid()
+  })
+  const { id } = findOne{{pascalCase name}}Schema.parse(request.params)
+
+  try {
+    const findOne{{pascalCase name}}Service = new FindOne{{pascalCase name}}Service({{camelCase name}}Repository)
+    const { {{camelCase name}} } = await findOne{{pascalCase name}}Service.execute(id)
+    return reply.status(200).send({ {{camelCase name}} })
+  } catch (error) {
+    if (error instanceof {{pascalCase name}}NotFoundError) return reply.status(404).send({ message: error.message })
+    throw error
+  }
+}
+
+export const findMany = async (request: FastifyRequest, reply: FastifyReply) => {
+  try {
+    const findMany{{pascalCase name}}Service = new FindMany{{pascalCase name}}Service({{camelCase name}}Repository)
+    const { {{camelCase name}}s } = await findMany{{pascalCase name}}Service.execute()
+    return reply.status(200).send({ {{camelCase name}}s })
+  } catch (error) {
+    if (error instanceof {{pascalCase name}}NotFoundError) return reply.status(404).send({message: error.message})
+    throw error
+  }
+}
+
+export const create = async (request: FastifyRequest, reply: FastifyReply) => {
+  const create{{pascalCase name}}Schema = z.object({
+    // TODO: Add your schema fields here
+    // name: z.string(),
+    // email: z.email(),
+  })
+
+  const data = create{{pascalCase name}}Schema.parse(request.body)
+
+  try {
+    const create{{pascalCase name}}Service = new Create{{pascalCase name}}Service({{camelCase name}}Repository)
+    const { {{camelCase name}} } = await create{{pascalCase name}}Service.execute(data)
+    return reply.status(201).send({ {{camelCase name}} })
+  } catch (error) {
+    if (error instanceof {{pascalCase name}}AlreadyExistsError) return reply.status(409).send({ message: error.message })
+    throw error
+  }
+}
+
+export const update = async (request: FastifyRequest, reply: FastifyReply) => {
+  const update{{pascalCase name}}SchemaParams = z.object({
+    id: z.uuid(),
+  })
+  const { id } = update{{pascalCase name}}SchemaParams.parse(request.params)
+
+  const update{{pascalCase name}}SchemaBody = z.object({
+    // TODO: Add your schema fields here with .optional()
+    // name: z.string().min(2).max(100).optional(),
+    // email: z.email().optional(),
+  })
+  const data = update{{pascalCase name}}SchemaBody.parse(request.body)
+
+  try {
+    const update{{pascalCase name}}Service = new Update{{pascalCase name}}Service({{camelCase name}}Repository)
+    const { {{camelCase name}} } = await update{{pascalCase name}}Service.execute(id, data)
+    return reply.status(200).send({ {{camelCase name}} })
+  } catch (error) {
+    if (error instanceof {{pascalCase name}}NotFoundError) return reply.status(404).send({ message: error.message })
+    throw error
+  }
+}
+
+export const del = async (request: FastifyRequest, reply: FastifyReply) => {
+  const delete{{pascalCase name}}Schema = z.object({
+    id: z.uuid(),
+  })
+  const { id } = delete{{pascalCase name}}Schema.parse(request.params)
+
+  try {
+    const delete{{pascalCase name}}Service = new Delete{{pascalCase name}}Service({{camelCase name}}Repository)
+    await delete{{pascalCase name}}Service.execute(id)
+    return reply.status(204).send()
+  } catch (error) {
+    if (error instanceof {{pascalCase name}}NotFoundError) return reply.status(404).send({ message: error.message })
+    throw error
+  }
+}

@@ -7,6 +7,7 @@ export const app = fastify();
 app.register(appRoutes)
 
 app.setErrorHandler((error, _request, reply) => {
+  console.log(error)
   if (error instanceof ZodError) {
     return reply.status(400).send({
       statusCode: 400,

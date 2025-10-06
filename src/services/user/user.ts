@@ -1,5 +1,5 @@
 import { UserNotFoundError, UserAlreadyExistsError } from "./errors/users"
-import { UsersRepository } from "@/repositories/users-repository"
+import { UsersRepository } from "@/repositories/_interfaces/users-repository"
 import { hash } from "bcryptjs"
 
 interface CreateUserRequest {
@@ -7,6 +7,12 @@ interface CreateUserRequest {
   email: string,
   password: string,
 }
+interface UpdateUserRequest {
+  name?: string,
+  email?: string,
+  password?: string,
+}
+
 export class FindOneUserService {
   constructor(private usersRepository: UsersRepository){}
 
@@ -51,6 +57,26 @@ export class CreateUserService {
       user,
     }
 }
+}
+
+export class UpdateUserService {
+  constructor(private usersRepository: UsersRepository){}
+
+  async execute(id: string, { name, email, password }: UpdateUserRequest){
+    const user = await this.usersRepository.findOne(id)
+    if (!user) throw new UserNotFoundError()
+    const password_hash = password ? await hash(password, 6) : undefined
+    const userWithSameEmail = email ? await this.usersRepository.findByEmail(email) : null
+    if (userWithSameEmail && userWithSameEmail.id !== id) throw new UserAlreadyExistsError()
+    const updatedUser = await this.usersRepository.update(id, {
+      name,
+      email,
+      password_hash,
+    })
+    return {
+      user: updatedUser,
+    }
+  }
 }
 
 export class DeleteUserService {
